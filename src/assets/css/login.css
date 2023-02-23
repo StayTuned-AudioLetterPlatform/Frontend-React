@@ -33,3 +33,7 @@
 .landing-main {
     height: 80vmin;
 }
+
+.google-login-api {
+    display: none;
+}
