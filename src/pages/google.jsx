@@ -22,7 +22,7 @@ export default function Google() {
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(params)
             };
-            fetch('http://localhost:8080/api/v1/login', requestOptions).then(async response =>{
+            fetch('http://localhost:8080/api/v1/login/oauth2/code/*', requestOptions).then(async response =>{
                 const isJson = response.headers.get('content-type')?.includes('application/json');
                 const data = isJson && await response.json();
 

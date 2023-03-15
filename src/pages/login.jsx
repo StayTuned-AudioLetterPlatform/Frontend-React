@@ -1,10 +1,9 @@
 import '../assets/css/login.css';
 import React, {useEffect, useRef, useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import useScript from "../hooks/useScript";
 
 export default function Login() {
-
-    const googleSignIn = useRef(null);
+    /*
 
     const [loginInfo, setLoginInfo] = useState({
         postID: '',
@@ -13,47 +12,16 @@ export default function Login() {
 
     const handleCredentialResponse = async (res) => {
         console.log(res);
-
     }
-
-    const useScript = (url, onload) => {
-        useEffect(() => {
-            const script = document.createElement('script');
-
-            script.src = url;
-            script.onload = onload;
-
-            document.head.appendChild(script);
-
-            return () => {
-                document.head.removeChild(script);
-            };
-        }, [url, onload]);
-    };
-
-    /*useScript('https://accounts.google.com/gsi/client', () => {
+    useScript('https://accounts.google.com/gsi/client', function () {
         window.google.accounts.id.initialize({
-            client_id: '',
+            client_id: '671295407542-u9fqfed0jug85pe7unkcpmeij8r5or17.apps.googleusercontent.com',
             callback: handleCredentialResponse,
         });
         window.google.accounts.id.renderButton(googleSignIn.current, {
             display:'none'
         });
     });*/
-    var fragmentString = window.location.hash.substring(1);
-
-    // Parse query string to see if page request is coming from OAuth 2.0 server.
-    var params = {};
-    var regex = /([^&=]+)=([^&]*)/g, m;
-    while (m = regex.exec(fragmentString)) {
-        params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
-    }
-    if (Object.keys(params).length > 0) {
-        localStorage.setItem('oauth2-test-params', JSON.stringify(params) );
-        if (params['state'] && params['state'] === 'pass-through-value') {
-            trySampleRequest();
-        }
-    }
 
     // If there's an access token, try an API request.
     // Otherwise, start OAuth 2.0 flow.
@@ -61,7 +29,6 @@ export default function Login() {
         var params = JSON.parse(localStorage.getItem('oauth2-test-params'));
         if (params && params['access_token']) {
             console.log(params['access_token']);
-            navigate('/main');
         } else {
             console.log('first');
             oauth2SignIn();
@@ -81,7 +48,7 @@ export default function Login() {
         form.setAttribute('action', oauth2Endpoint);
 
         // Parameters to pass to OAuth 2.0 endpoint.
-        var params = {'client_id': '',
+        var params = {'client_id': '671295407542-u9fqfed0jug85pe7unkcpmeij8r5or17.apps.googleusercontent.com',
             'redirect_uri': 'http://localhost:3000/google-callback',
             'response_type': 'code',
             'scope': 'https://www.googleapis.com/auth/drive.metadata.readonly',
@@ -116,7 +83,7 @@ export default function Login() {
             <p className={"landing-name"}>Stay Tuned!</p>
             <hr className={"landing-divider"} />
             <img className={"landing-button"} src={"kakao-talk.png"} alt={"kakao social login"} onClick={login} id={"kakao"}/>
-            <img className={"landing-button"} src={"google-symbol.png"} alt={"google social login"} onClick={login} id={"google"} ref={googleSignIn}/>
+            <img className={"landing-button"} src={"google-symbol.png"} alt={"google social login"} onClick={login} id={"google"} />
             <img className={"landing-button"} src={"n.png.png"} alt={"naver social login"} onClick={login} id={"naver"}/>
         </div>
     );

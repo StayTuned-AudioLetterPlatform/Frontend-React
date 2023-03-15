@@ -5,6 +5,7 @@ import Login from './pages/login';
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import Main from "./pages/main";
 import Google from "./pages/google";
+import AudioRecorder from "./pages/AudioRecorder";
 
 function App() {
 

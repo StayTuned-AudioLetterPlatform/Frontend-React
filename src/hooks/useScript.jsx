@@ -1,7 +1,7 @@
 import {useEffect} from 'react';
 
-let useScript = (url, onload) => {
-    useEffect(() => {
+const useScript = function (url, onload){
+    useEffect(()=>{
         const script = document.createElement('script');
 
         script.src = url;
