@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Cassette({nickname, iconType, voiceFileKey, date}) {
+export default function Cassette({nickname, iconType, voiceFileKey}) {
     return(
         <div className={"cassette"}>
             <h3>{nickname}</h3>

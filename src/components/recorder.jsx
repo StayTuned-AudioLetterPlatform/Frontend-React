@@ -52,27 +52,55 @@ const Recorder = (props) => {
             const audioBlob = new Blob(audioChunks, { type: mimeType });
             //creates a playable URL from the blob file.
             const audioUrl = URL.createObjectURL(audioBlob);
-            setAudio(audioUrl);
             setAudioChunks([]);
-            const soundFile = new File([audioUrl], "soundBlob", {lastModified: new Date().getTime(), type: "audio"});
-            console.log(soundFile);
+            //extract stream from the blob to increase performance
+            const blobStream = audioBlob.stream();
+            //make it to a new blob 'cause formData only receives Blob format as its second argument
+            const audioStreamBlob = new Blob([blobStream], {type: audioBlob.type});
             //send
+            const url = "http://192.168.0.8:8080/v1/api/save";
             const formData = new FormData();
-            formData.append("mediaFile", soundFile);
-            const send = async () => {
-                await axios({
-                    method: 'POST',
-                    url: "http://172.30.1.32:8080/login",
-                }).then(res => {
-                    console.log(res);
-                });
+            formData.append("data", audioStreamBlob);
+            const config = {
+                headers: {
+                    'content-type': 'multipart/form-data'
+                }
             };
-            send();
+            axios.post(url, formData, config)
+                .then((res) => {
+                    console.log(res);
+                    setAudio(res.data);
+                    props.setData((prev)=> {
+                        return([
+                            ...prev,
+                            {
+                                id: 'newtemp',
+                                nickname: props.username,
+                                iconType: 'newtemp',
+                                voiceFileKey: audioUrl,
+                                date: new Date('2022-03-07T03:23:00'),
+                            }
+                        ]);
+                    });
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
         };
     };
 
+    /*const disappearRecordPopup = () => {
+        document.querySelector('#recorder').style.display = 'none';
+        mediaRecorder.current = null;
+        setPermission(false);
+        setRecordingStatus("inactive");
+        setStream(null);
+        setAudioChunks([]);
+        setAudio(null);
+    }*/
+
     return (
-        <div>
+        <div id={"recorder"}>
             <h2>Audio Recorder</h2>
             <main>
                 <div className="audio-controls">
@@ -95,9 +123,7 @@ const Recorder = (props) => {
                 {audio ? (
                     <div className="audio-container">
                         <audio src={audio} controls></audio>
-                        <a download href={audio}>
-                            Download Recording
-                        </a>
+                        {/*download 구현*/}
                     </div>
                 ): null}
             </main>

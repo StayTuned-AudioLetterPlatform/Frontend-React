@@ -1,18 +1,22 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import '../assets/css/main.css';
 import Cassette from "../components/cassette";
 import Recorder from "../components/recorder";
+import Popup from "../components/popup";
 
 export default function Main() {
 
     const [username, setUserName] = useState('temp');
+    const [data, setData] = useState([]);
     const [cassettes, setCassettes] = useState([]);
-    let cassetteNum = useRef(0);
     const [offset, setOffset] = useState(0);
+    const [tempAudio, setTempAudio] = useState("");
+    const [content, setContent] = useState(null);
+    const popup = useRef();
 
     useEffect(() => {
         //get cassette data name server
-        const data = [
+        setData([
             {
                 id: 'temp1',
                 nickname: 'temp1',
@@ -69,8 +73,10 @@ export default function Main() {
                 voiceFileKey: 'temp8',
                 date: new Date('2013-03-17T03:24:00'),
             },
-        ];
-        cassetteNum.current = data.length;
+        ]);
+    }, []);
+
+    useEffect(() => {
         //temp code
         setCassettes(() => {
             const numShelfs = data.length % 3 === 0 ? data.length / 3 : data.length / 3 + 1;
@@ -81,13 +87,28 @@ export default function Main() {
             }
             return dividedCassetteArr;
         });
-    }, []);
+    }, [data]);
+
+    const displayRecordPopup = () => {
+        setContent(<Recorder name={username} data={data} setData={setData}/>);
+        popup.current.style.display = 'block';
+    }
+
+    const displayPlayerPopup = () => {
+        setContent(<div>djklslehfjkf</div>);
+        popup.current.style.display = 'block';
+    }
+
+    const disappearPopup = () => {
+        setContent(null);
+        popup.current.style.display = 'none';
+    }
 
     return (
         <div>
             <div className={"main-container"}>
                 <div className={"main-title"}>
-                    <p className={"user-info"}>{username}님에게 {cassetteNum.current}개의 음성 편지가 도착했습니다!</p>
+                    <p className={"user-info"}>{username}님에게 {data.length}개의 음성 편지가 도착했습니다!</p>
                     <p className={"user-guide"}>아이콘을 눌러 들어보세요~~</p>
                 </div>
                 <div className={"main-shelves"}>
@@ -99,7 +120,7 @@ export default function Main() {
                                     ?
                                     shelf.map(({id, nickname, iconType, voiceFileKey, date}) => {
                                         return (
-                                            <Cassette key={id} nickname={nickname} iconType={iconType} voiceFileKey={voiceFileKey} date={date} />
+                                            <Cassette key={id} nickname={nickname} iconType={iconType} voiceFileKey={voiceFileKey} date={date}/>
                                         );
                                     })
                                     :
@@ -113,7 +134,13 @@ export default function Main() {
                         );
                     })}
                 </div>
-                <Recorder name={username}/>
+                <button onClick={displayPlayerPopup}>play</button>
+                <div className="temp">
+                    <audio src={tempAudio} controls></audio>
+                </div>
+                <button onClick={displayRecordPopup}>record</button>
+                <Popup id={"mainPopup"} className={"pop-up"} inner={content} innerRef={popup} disappearPopup={disappearPopup}/>
+                {/*<Recorder name={username} data={data} setData={setData}/>*/}
             </div>
         </div>
     );

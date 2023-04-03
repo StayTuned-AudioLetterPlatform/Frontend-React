@@ -25,3 +25,11 @@
     justify-content: center;
     margin: auto;
 }
+
+.cassette:hover {
+    cursor: pointer;
+}
+
+.temp {
+    display: none;
+}
