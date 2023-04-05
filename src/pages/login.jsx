@@ -75,7 +75,7 @@ export default function Login() {
             console.log('in');
             //document.querySelector('[aria-labelledby="button-label"]').click();
             // trySampleRequest();
-            axios.post('localhost:8080/oauth2/authorization/google?redirect_uri=http://localhost:3000/main');
+            axios.post('http://localhost:8080/oauth2/authorization/google?redirect_uri=http://localhost:3000/main');
         }
     }
 

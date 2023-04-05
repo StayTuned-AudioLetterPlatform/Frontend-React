@@ -3,6 +3,7 @@ import '../assets/css/main.css';
 import Cassette from "../components/cassette";
 import Recorder from "../components/recorder";
 import Popup from "../components/popup";
+import jwt_decode from "jwt-decode";
 
 export default function Main() {
 
@@ -24,6 +25,10 @@ export default function Main() {
         params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
     }
     console.log(params);
+    const token = params.access_token;
+    const decoded = jwt_decode(token);
+
+    console.log(decoded);
 
     useEffect(() => {
         //get cassette data name server
