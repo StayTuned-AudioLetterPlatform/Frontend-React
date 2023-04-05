@@ -4,6 +4,7 @@ const Recorder = (props) => {
     const mimeType = 'audio/wav'; //audio file format
     const [permission, setPermission] = useState(false); //has the user permission been given
     const mediaRecorder = useRef(null);
+    const stopButton = useRef(null);
     const [recordingStatus, setRecordingStatus] = useState("inactive"); //current recording status(recording, inactive, paused)
     const [stream, setStream] = useState(null);//stream object from MediaStream
     const [audioChunks, setAudioChunks] = useState([]); //encoded pieces of the recording
@@ -50,17 +51,18 @@ const Recorder = (props) => {
         mediaRecorder.current.onstop = () => {
             //creates a blob file from the audiochunks data
             const audioBlob = new Blob(audioChunks, { type: mimeType });
+            const audioStream = audioBlob.stream();
             //creates a playable URL from the blob file.
             const audioUrl = URL.createObjectURL(audioBlob);
             setAudioChunks([]);
-            //extract stream from the blob to increase performance
-            const blobStream = audioBlob.stream();
-            //make it to a new blob 'cause formData only receives Blob format as its second argument
-            const audioStreamBlob = new Blob([blobStream], {type: audioBlob.type});
             //send
-            const url = "http://192.168.0.8:8080/v1/api/save";
+            const url = "http://192.168.0.5:8080/v1/api/save";
             const formData = new FormData();
-            formData.append("data", audioStreamBlob);
+            formData.append("data", audioBlob);
+            formData.append("iconType", "1");
+            formData.append("id", "newtemp");
+            formData.append("nickname", props.username);
+            formData.append("writer", "test");
             const config = {
                 headers: {
                     'content-type': 'multipart/form-data'
@@ -70,6 +72,7 @@ const Recorder = (props) => {
                 .then((res) => {
                     console.log(res);
                     setAudio(res.data);
+                    console.log(audio);
                     props.setData((prev)=> {
                         return([
                             ...prev,
@@ -115,7 +118,7 @@ const Recorder = (props) => {
                         </button>
                     ) : null}
                     {recordingStatus === "recording" ? (
-                        <button onClick={stopRecording} type="button">
+                        <button onClick={stopRecording} type="button" ref={stopButton}>
                             Stop Recording
                         </button>
                     ) : null}
@@ -124,6 +127,7 @@ const Recorder = (props) => {
                     <div className="audio-container">
                         <audio src={audio} controls></audio>
                         {/*download 구현*/}
+                        <a download={audio} />
                     </div>
                 ): null}
             </main>

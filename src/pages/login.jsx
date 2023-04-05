@@ -1,6 +1,7 @@
 import '../assets/css/login.css';
 import React, {useEffect, useRef, useState} from 'react';
 import useScript from "../hooks/useScript";
+import axios from "axios";
 
 export default function Login() {
     /*
@@ -48,12 +49,12 @@ export default function Login() {
         form.setAttribute('action', oauth2Endpoint);
 
         // Parameters to pass to OAuth 2.0 endpoint.
-        var params = {'client_id': '671295407542-u9fqfed0jug85pe7unkcpmeij8r5or17.apps.googleusercontent.com',
-            'redirect_uri': 'http://localhost:3000/google-callback',
-            'response_type': 'code',
+        var params = {/*'client_id': '671295407542-u9fqfed0jug85pe7unkcpmeij8r5or17.apps.googleusercontent.com',*/
+            'redirect_uri': 'http://localhost:3000/main',
+            /*'response_type': 'code',
             'scope': 'https://www.googleapis.com/auth/drive.metadata.readonly',
             'include_granted_scopes': 'true',
-            'state': 'pass-through-value'};
+            'state': 'pass-through-value'*/};
 
         // Add form parameters as hidden input values.
         for (var p in params) {
@@ -73,7 +74,8 @@ export default function Login() {
         if(event.target.id === 'google'){
             console.log('in');
             //document.querySelector('[aria-labelledby="button-label"]').click();
-            trySampleRequest();
+            // trySampleRequest();
+            axios.post('localhost:8080/oauth2/authorization/google?redirect_uri=http://localhost:3000/main');
         }
     }
 
