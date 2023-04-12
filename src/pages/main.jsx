@@ -7,7 +7,13 @@ import jwt_decode from "jwt-decode";
 
 export default function Main() {
 
-    const [username, setUserName] = useState('temp');
+    const [user, setUser] = useState({
+        code: 0,
+        email: "temp",
+        exp: "temp",
+        iat: "temp",
+        name: "temp",
+    });
     const [data, setData] = useState([]);
     const [cassettes, setCassettes] = useState([]);
     const [offset, setOffset] = useState(0);
@@ -16,7 +22,14 @@ export default function Main() {
     const popup = useRef();
 
     var fragmentString = window.location.href.split('?')[1];
-    console.log(fragmentString);
+    setUser({
+        code: fragmentString.code,
+        email: fragmentString.email,
+        exp: fragmentString.exp,
+        iat: fragmentString.iat,
+        name: fragmentString
+    });
+
 
     // Parse query string to see if page request is coming from OAuth 2.0 server.
     var params = {};
@@ -106,7 +119,7 @@ export default function Main() {
     }, [data]);
 
     const displayRecordPopup = () => {
-        setContent(<Recorder name={username} data={data} setData={setData}/>);
+        setContent(<Recorder name={user.name} data={data} setData={setData}/>);
         popup.current.style.display = 'block';
     }
 
@@ -124,7 +137,7 @@ export default function Main() {
         <div>
             <div className={"main-container"}>
                 <div className={"main-title"}>
-                    <p className={"user-info"}>{username}님에게 {data.length}개의 음성 편지가 도착했습니다!</p>
+                    <p className={"user-info"}>{user.name}님에게 {data.length}개의 음성 편지가 도착했습니다!</p>
                     <p className={"user-guide"}>아이콘을 눌러 들어보세요~~</p>
                 </div>
                 <div className={"main-shelves"}>
