@@ -85,7 +85,9 @@ export default function Login() {
             <p className={"landing-name"}>Stay Tuned!</p>
             <hr className={"landing-divider"} />
             <img className={"landing-button"} src={"kakao-talk.png"} alt={"kakao social login"} onClick={login} id={"kakao"}/>
-            <img className={"landing-button"} src={"google-symbol.png"} alt={"google social login"} onClick={login} id={"google"} />
+            <a href={'http://localhost:8080/oauth2/authorization/google?redirect_uri=http://localhost:3000/main'}>
+                <img className={"landing-button"} src={"google-symbol.png"} alt={"google social login"} id={"google"} />
+            </a>
             <img className={"landing-button"} src={"n.png.png"} alt={"naver social login"} onClick={login} id={"naver"}/>
         </div>
     );

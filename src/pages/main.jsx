@@ -7,13 +7,7 @@ import jwt_decode from "jwt-decode";
 
 export default function Main() {
 
-    const [user, setUser] = useState({
-        code: 0,
-        email: "temp",
-        exp: "temp",
-        iat: "temp",
-        name: "temp",
-    });
+    const [user, setUser] = useState({});
     const [data, setData] = useState([]);
     const [cassettes, setCassettes] = useState([]);
     const [offset, setOffset] = useState(0);
@@ -21,29 +15,20 @@ export default function Main() {
     const [content, setContent] = useState(null);
     const popup = useRef();
 
-    var fragmentString = window.location.href.split('?')[1];
-    setUser({
-        code: fragmentString.code,
-        email: fragmentString.email,
-        exp: fragmentString.exp,
-        iat: fragmentString.iat,
-        name: fragmentString
-    });
-
-
-    // Parse query string to see if page request is coming from OAuth 2.0 server.
-    var params = {};
-    var regex = /([^&=]+)=([^&]*)/g, m;
-    while (m = regex.exec(fragmentString)) {
-        params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
-    }
-    console.log(params);
-    const token = params.access_token;
-    const decoded = jwt_decode(token);
-
-    console.log(decoded);
-
     useEffect(() => {
+        //get user info
+        var fragmentString = window.location.href.split('?')[1];
+
+        // Parse query string to see if page request is coming from OAuth 2.0 server.
+        var params = {};
+        var regex = /([^&=]+)=([^&]*)/g, m;
+        while (m = regex.exec(fragmentString)) {
+            params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
+        }
+        const token = params.access_token;
+        const decoded = jwt_decode(token);
+        console.log(decoded);
+        setUser(decoded);
         //get cassette data name server
         setData([
             {
