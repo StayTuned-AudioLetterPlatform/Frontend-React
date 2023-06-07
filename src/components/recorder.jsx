@@ -56,13 +56,10 @@ const Recorder = (props) => {
             const audioUrl = URL.createObjectURL(audioBlob);
             setAudioChunks([]);
             //send
-            const url = "http://192.168.0.5:8080/v1/api/save";
+            const url = "http://localhost:8080/api/v1/voicemail/file/upload";
             const formData = new FormData();
             formData.append("data", audioBlob);
-            formData.append("iconType", "1");
-            formData.append("id", "newtemp");
-            formData.append("nickname", props.username);
-            formData.append("writer", "test");
+
             const config = {
                 headers: {
                     'content-type': 'multipart/form-data'
@@ -73,34 +70,40 @@ const Recorder = (props) => {
                     console.log(res);
                     setAudio(res.data);
                     console.log(audio);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+            const saveData = new FormData();
+            saveData.append("fileUrl", audio);
+            saveData.append("iconType", "1");
+            saveData.append("targetUserCd", 1);
+            saveData.append("writer", props.name);
+            const saveConfig = {
+                headers: {
+                    'content-type': 'application/json'
+                }
+            };
+            axios.post("http://localhost:8080/api/v1/voicemail/save", saveData, saveConfig)
+                .then((res) => {
                     props.setData((prev)=> {
                         return([
                             ...prev,
                             {
                                 id: 'newtemp',
-                                nickname: props.username,
-                                iconType: 'newtemp',
-                                voiceFileKey: audioUrl,
+                                nickname: props.name,
+                                iconType: "1",
+                                voiceFileKey: audio,
                                 date: new Date('2022-03-07T03:23:00'),
                             }
                         ]);
                     });
                 })
-                .catch((error) => {
-                    console.log(error);
-                });
+                .catch((e) => {
+                    console.log(e);
+                })
         };
     };
-
-    /*const disappearRecordPopup = () => {
-        document.querySelector('#recorder').style.display = 'none';
-        mediaRecorder.current = null;
-        setPermission(false);
-        setRecordingStatus("inactive");
-        setStream(null);
-        setAudioChunks([]);
-        setAudio(null);
-    }*/
 
     return (
         <div id={"recorder"}>

@@ -4,6 +4,9 @@ import Cassette from "../components/cassette";
 import Recorder from "../components/recorder";
 import Popup from "../components/popup";
 import jwt_decode from "jwt-decode";
+import Player from "../components/player";
+import axios from "axios";
+import Crypto from 'crypto-js';
 
 export default function Main() {
 
@@ -11,8 +14,8 @@ export default function Main() {
     const [data, setData] = useState([]);
     const [cassettes, setCassettes] = useState([]);
     const [offset, setOffset] = useState(0);
-    const [tempAudio, setTempAudio] = useState("");
     const [content, setContent] = useState(null);
+    const [isUser, setIsUser] = useState(false);
     const popup = useRef();
 
     useEffect(() => {
@@ -29,65 +32,26 @@ export default function Main() {
         const decoded = jwt_decode(token);
         console.log(decoded);
         setUser(decoded);
+        window.localStorage.setItem('expireAt', decoded.exp);
+        window.localStorage.setItem('initialAt', decoded.iat);
+
+        //create random url
+        let url = 'http://localhost:8080/api/v1/voicemail/List/';
+        console.log(process.env.REACT_APP_IV);
+        const encryptedURL = Crypto.AES.encrypt(decoded.code.toString(), Crypto.enc.Utf8(process.env.REACT_APP_SECRETKEY), {
+            iv: Crypto.enc.Utf8(process.env.REACT_APP_IV),
+        });
+        window.localStorage.setItem('inviteURL', url + encodeURIComponent(encryptedURL.toString()));
+
         //get cassette data name server
-        setData([
-            {
-                id: 'temp1',
-                nickname: 'temp1',
-                iconType: 'temp1',
-                voiceFileKey: 'temp1',
-                date: new Date('2023-03-07T03:24:00'),
-            },
-            {
-                id: 'temp2',
-                nickname: 'temp2',
-                iconType: 'temp2',
-                voiceFileKey: 'temp2',
-                date: new Date('2023-03-07T03:25:00'),
-            },
-            {
-                id: 'temp3',
-                nickname: 'temp3',
-                iconType: 'temp3',
-                voiceFileKey: 'temp3',
-                date: new Date('2023-03-07T03:26:00'),
-            },
-            {
-                id: 'temp4',
-                nickname: 'temp4',
-                iconType: 'temp4',
-                voiceFileKey: 'temp4',
-                date: new Date('2023-03-07T03:21:00'),
-            },
-            {
-                id: 'temp5',
-                nickname: 'temp5',
-                iconType: 'temp5',
-                voiceFileKey: 'temp5',
-                date: new Date('2023-03-06T03:24:00'),
-            },
-            {
-                id: 'temp6',
-                nickname: 'temp6',
-                iconType: 'temp6',
-                voiceFileKey: 'temp6',
-                date: new Date('2022-03-07T03:24:00'),
-            },
-            {
-                id: 'temp7',
-                nickname: 'temp7',
-                iconType: 'temp7',
-                voiceFileKey: 'temp7',
-                date: new Date('2023-03-07T03:24:02'),
-            },
-            {
-                id: 'temp8',
-                nickname: 'temp8',
-                iconType: 'temp8',
-                voiceFileKey: 'temp8',
-                date: new Date('2013-03-17T03:24:00'),
-            },
-        ]);
+        axios.get('http://localhost:8080/api/v1/voicemail/List/' + decoded.code.toString())
+            .then((res) => {
+                console.log(res);
+                setData(res.data);
+            })
+            .catch((e)=>{
+                alert("An unexpected error occured while getting user data from the server. Please contact the team to resolve this error. error code: " + e);
+            });
     }, []);
 
     useEffect(() => {
@@ -108,14 +72,18 @@ export default function Main() {
         popup.current.style.display = 'block';
     }
 
-    const displayPlayerPopup = () => {
-        setContent(<div>djklslehfjkf</div>);
+    const displayPlayerPopup = (voiceKey) => {
+        setContent(<Player voiceKey={voiceKey}/>);
         popup.current.style.display = 'block';
     }
 
     const disappearPopup = () => {
         setContent(null);
         popup.current.style.display = 'none';
+    }
+
+    const invite = () => {
+        console.log(window.localStorage.getItem("inviteURL"));
     }
 
     return (
@@ -125,36 +93,34 @@ export default function Main() {
                     <p className={"user-info"}>{user.name}님에게 {data.length}개의 음성 편지가 도착했습니다!</p>
                     <p className={"user-guide"}>아이콘을 눌러 들어보세요~~</p>
                 </div>
+                <div className={"invite"}>
+                    <button onClick={invite}>invite friends</button>
+                </div>
                 <div className={"main-shelves"}>
                     {cassettes.slice(offset, offset + 4).map((shelf, indexShelf) => {
                         return (
-                            <div key={indexShelf} className={"main-shelf"}>
+                            <div key={indexShelf} className={shelf.length < 3 ? "not-full-shelf" : "main-shelf"}>
                                 {
                                     shelf.length !== 0
                                     ?
-                                    shelf.map(({id, nickname, iconType, voiceFileKey, date}) => {
+                                    shelf.map(({code, writer, iconType, fileUrl, date}) => {
                                         return (
-                                            <Cassette key={id} nickname={nickname} iconType={iconType} voiceFileKey={voiceFileKey} date={date}/>
+                                            <Cassette key={code} nickname={writer} iconType={iconType} date={date} voiceFileKey={fileUrl} clickFunction={displayPlayerPopup}/>
                                         );
                                     })
                                     :
                                     <div className={"main-shelf"}>
-                                        <Cassette nickname={null} iconType={null} voiceFileKey={null} date={null} />
-                                        <Cassette nickname={null} iconType={null} voiceFileKey={null} date={null} />
-                                        <Cassette nickname={null} iconType={null} voiceFileKey={null} date={null} />
+                                        <div className={"empty-cassette"} />
+                                        <div className={"empty-cassette"} />
+                                        <div className={"empty-cassette"} />
                                     </div>
                                 }
                             </div>
                         );
                     })}
                 </div>
-                <button onClick={displayPlayerPopup}>play</button>
-                <div className="temp">
-                    <audio src={tempAudio} controls></audio>
-                </div>
                 <button onClick={displayRecordPopup}>record</button>
                 <Popup id={"mainPopup"} className={"pop-up"} inner={content} innerRef={popup} disappearPopup={disappearPopup}/>
-                {/*<Recorder name={username} data={data} setData={setData}/>*/}
             </div>
         </div>
     );
