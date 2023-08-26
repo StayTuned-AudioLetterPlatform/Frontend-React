@@ -24,7 +24,6 @@ function App() {
                     <Routes>
                         <Route path={"/login"} exact element={<Login />} />
                         <Route path={"/main"} element={<Main />} />
-                        <Route path={"/google-callback"} element={<Google />}/>
                     </Routes>
 
                 </div>
