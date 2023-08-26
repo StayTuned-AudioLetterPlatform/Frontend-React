@@ -5,20 +5,21 @@
     font-style: normal;
 }
 
-.cassette {
+.container {
     width: fit-content;
+    height: fit-content;
 }
-.cassette-content {
-    width: 90px;
-    margin: 10px 10px 0px 10px;
-}
-
-.nickname {
-    margin: -10px 1px 10px 1px;
-    word-break: break-all;
+.inviteGuide {
     font-family: HS-Regular;
+    font-size: 2rem;
 }
-
-.voice-key{
-    margin: 2px;
+.box {
+    border: black 1px;
+    background-color: #FFFFFF;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px;
+}
+.inviteInfo {
+    font-family: HS-Regular;
 }

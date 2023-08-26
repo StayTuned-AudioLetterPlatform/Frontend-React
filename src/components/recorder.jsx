@@ -1,5 +1,9 @@
 import { useState, useRef } from "react";
 import axios from "axios";
+import {user as userAtom, records as recordsAtom} from "../states/atoms";
+import {useRecoilValue, useSetRecoilState} from "recoil";
+import styles from '../assets/css/recorder.module.css';
+
 const Recorder = (props) => {
     const mimeType = 'audio/wav'; //audio file format
     const [permission, setPermission] = useState(false); //has the user permission been given
@@ -9,6 +13,8 @@ const Recorder = (props) => {
     const [stream, setStream] = useState(null);//stream object from MediaStream
     const [audioChunks, setAudioChunks] = useState([]); //encoded pieces of the recording
     const [audio, setAudio] = useState(null); //blob URL
+    const userInfo = useRecoilValue(userAtom);
+    const setRecords = useSetRecoilState(recordsAtom);
 
     const getMicrophonePermission = async () => {
         if ("MediaRecorder" in window) {
@@ -67,41 +73,41 @@ const Recorder = (props) => {
             };
             axios.post(url, formData, config)
                 .then((res) => {
-                    console.log(res);
+                    console.log(res.data);
                     setAudio(res.data);
-                    console.log(audio);
+                    const tempaudio = res.data;
+                    const saveData = new FormData();
+                    saveData.append("fileUrl", tempaudio);
+                    saveData.append("iconType", props.iconType);
+                    saveData.append("targetUserCd", parseInt(userInfo.code));
+                    saveData.append("writer", props.name);
+                    const saveConfig = {
+                        headers: {
+                            'content-type': 'application/json'
+                        }
+                    };
+                    axios.post("http://localhost:8080/api/v1/voicemail/save", saveData, saveConfig)
+                        .then((res) => {
+                            setRecords((prev)=> {
+                                return([
+                                    {
+                                        code: res.data,
+                                        writer: props.name,
+                                        iconType: props.iconType,
+                                        fileUrl: tempaudio,
+                                    },
+                                    ...prev
+                                ]);
+                            });
+                        })
+                        .catch((e) => {
+                            console.log(e);
+                        })
                 })
                 .catch((error) => {
                     console.log(error);
                 });
-            const saveData = new FormData();
-            saveData.append("fileUrl", audio);
-            saveData.append("iconType", "1");
-            saveData.append("targetUserCd", 1);
-            saveData.append("writer", props.name);
-            const saveConfig = {
-                headers: {
-                    'content-type': 'application/json'
-                }
-            };
-            axios.post("http://localhost:8080/api/v1/voicemail/save", saveData, saveConfig)
-                .then((res) => {
-                    props.setData((prev)=> {
-                        return([
-                            ...prev,
-                            {
-                                id: 'newtemp',
-                                nickname: props.name,
-                                iconType: "1",
-                                voiceFileKey: audio,
-                                date: new Date('2022-03-07T03:23:00'),
-                            }
-                        ]);
-                    });
-                })
-                .catch((e) => {
-                    console.log(e);
-                })
+
         };
     };
 

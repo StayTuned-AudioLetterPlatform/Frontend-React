@@ -3,25 +3,33 @@ import React from 'react';
 import Header from './components/header';
 import Login from './pages/login';
 import {BrowserRouter, Route, Routes} from "react-router-dom";
-import Main from "./pages/main";
+import {Main} from "./pages/main";
 import Google from "./pages/google";
-import Popup from "./components/popup";
+import {
+    RecoilRoot,
+    atom,
+    selector,
+    useRecoilState,
+    useRecoilValue,
+} from "recoil";
 
 
 function App() {
 
     return (
-        <BrowserRouter>
-            <div className="App">
-                <Header />
-                <Routes>
-                    <Route path={"/"} exact element={<Login />} />
-                    <Route path={"/main"} element={<Main />} />
-                    <Route path={"/google-callback"} element={<Google />}/>
-                </Routes>
+        <RecoilRoot>
+            <BrowserRouter>
+                <div className="App">
+                    <Header />
+                    <Routes>
+                        <Route path={"/login"} exact element={<Login />} />
+                        <Route path={"/main"} element={<Main />} />
+                        <Route path={"/google-callback"} element={<Google />}/>
+                    </Routes>
 
-            </div>
-        </BrowserRouter>
+                </div>
+            </BrowserRouter>
+        </RecoilRoot>
     );
 }
 

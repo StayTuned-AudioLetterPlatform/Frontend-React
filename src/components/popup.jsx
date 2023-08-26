@@ -4,7 +4,7 @@ export default function Popup (props) {
     return (
         <div className={"pop-up"} ref={props.innerRef}>
             {props.inner}
-            <button onClick={props.disappearPopup}>close</button>
+            <button onClick={props.disappearPopup} className={"pop-up-button"}>close</button>
         </div>
     );
 }
