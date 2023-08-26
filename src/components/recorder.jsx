@@ -1,13 +1,20 @@
 import { useState, useRef } from "react";
 import axios from "axios";
+import {user as userAtom, records as recordsAtom} from "../states/atoms";
+import {useRecoilValue, useSetRecoilState} from "recoil";
+import styles from '../assets/css/recorder.module.css';
+
 const Recorder = (props) => {
     const mimeType = 'audio/wav'; //audio file format
     const [permission, setPermission] = useState(false); //has the user permission been given
     const mediaRecorder = useRef(null);
+    const stopButton = useRef(null);
     const [recordingStatus, setRecordingStatus] = useState("inactive"); //current recording status(recording, inactive, paused)
     const [stream, setStream] = useState(null);//stream object from MediaStream
     const [audioChunks, setAudioChunks] = useState([]); //encoded pieces of the recording
     const [audio, setAudio] = useState(null); //blob URL
+    const userInfo = useRecoilValue(userAtom);
+    const setRecords = useSetRecoilState(recordsAtom);
 
     const getMicrophonePermission = async () => {
         if ("MediaRecorder" in window) {
@@ -50,17 +57,15 @@ const Recorder = (props) => {
         mediaRecorder.current.onstop = () => {
             //creates a blob file from the audiochunks data
             const audioBlob = new Blob(audioChunks, { type: mimeType });
+            const audioStream = audioBlob.stream();
             //creates a playable URL from the blob file.
             const audioUrl = URL.createObjectURL(audioBlob);
             setAudioChunks([]);
-            //extract stream from the blob to increase performance
-            const blobStream = audioBlob.stream();
-            //make it to a new blob 'cause formData only receives Blob format as its second argument
-            const audioStreamBlob = new Blob([blobStream], {type: audioBlob.type});
             //send
-            const url = "http://192.168.0.8:8080/v1/api/save";
+            const url = "http://localhost:8080/api/v1/voicemail/file/upload";
             const formData = new FormData();
-            formData.append("data", audioStreamBlob);
+            formData.append("data", audioBlob);
+
             const config = {
                 headers: {
                     'content-type': 'multipart/form-data'
@@ -68,36 +73,43 @@ const Recorder = (props) => {
             };
             axios.post(url, formData, config)
                 .then((res) => {
-                    console.log(res);
+                    console.log(res.data);
                     setAudio(res.data);
-                    props.setData((prev)=> {
-                        return([
-                            ...prev,
-                            {
-                                id: 'newtemp',
-                                nickname: props.username,
-                                iconType: 'newtemp',
-                                voiceFileKey: audioUrl,
-                                date: new Date('2022-03-07T03:23:00'),
-                            }
-                        ]);
-                    });
+                    const tempaudio = res.data;
+                    const saveData = new FormData();
+                    saveData.append("fileUrl", tempaudio);
+                    saveData.append("iconType", props.iconType);
+                    saveData.append("targetUserCd", parseInt(userInfo.code));
+                    saveData.append("writer", props.name);
+                    const saveConfig = {
+                        headers: {
+                            'content-type': 'application/json'
+                        }
+                    };
+                    axios.post("http://localhost:8080/api/v1/voicemail/save", saveData, saveConfig)
+                        .then((res) => {
+                            setRecords((prev)=> {
+                                return([
+                                    {
+                                        code: res.data,
+                                        writer: props.name,
+                                        iconType: props.iconType,
+                                        fileUrl: tempaudio,
+                                    },
+                                    ...prev
+                                ]);
+                            });
+                        })
+                        .catch((e) => {
+                            console.log(e);
+                        })
                 })
                 .catch((error) => {
                     console.log(error);
                 });
+
         };
     };
-
-    /*const disappearRecordPopup = () => {
-        document.querySelector('#recorder').style.display = 'none';
-        mediaRecorder.current = null;
-        setPermission(false);
-        setRecordingStatus("inactive");
-        setStream(null);
-        setAudioChunks([]);
-        setAudio(null);
-    }*/
 
     return (
         <div id={"recorder"}>
@@ -115,7 +127,7 @@ const Recorder = (props) => {
                         </button>
                     ) : null}
                     {recordingStatus === "recording" ? (
-                        <button onClick={stopRecording} type="button">
+                        <button onClick={stopRecording} type="button" ref={stopButton}>
                             Stop Recording
                         </button>
                     ) : null}
@@ -124,6 +136,7 @@ const Recorder = (props) => {
                     <div className="audio-container">
                         <audio src={audio} controls></audio>
                         {/*download 구현*/}
+                        <a download={audio} />
                     </div>
                 ): null}
             </main>

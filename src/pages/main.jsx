@@ -1,83 +1,91 @@
 import React, {useEffect, useRef, useState} from 'react';
-import '../assets/css/main.css';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { expireTime as timeAtom, user as userAtom, records as recordsAtom } from "../states/atoms";
+import styles from "../assets/css/main.module.css";
+import '../assets/css/main.module.css';
 import Cassette from "../components/cassette";
-import Recorder from "../components/recorder";
 import Popup from "../components/popup";
+import jwt_decode from "jwt-decode";
+import Player from "../components/player";
+import Invite from "../components/invite";
+import axios from "axios";
+import Crypto from "crypto-js";
+import NameSelector from "../components/nameSelector";
+import {useNavigate} from "react-router-dom";
 
-export default function Main() {
+export function Main() {
+    const [user, setUser] = useRecoilState(userAtom); //store user data
+    const [data, setData] = useRecoilState(recordsAtom); //voicemails(before processing)
+    const [cassettes, setCassettes] = useState([]); //voicemails(after processing)
+    const [offset, setOffset] = useState(0); //for pagination
+    const [content, setContent] = useState(null); //for popup content
+    const popup = useRef(); //referencing popup
+    const navigate = useNavigate(); //for redirection
 
-    const [username, setUserName] = useState('temp');
-    const [data, setData] = useState([]);
-    const [cassettes, setCassettes] = useState([]);
-    const [offset, setOffset] = useState(0);
-    const [tempAudio, setTempAudio] = useState("");
-    const [content, setContent] = useState(null);
-    const popup = useRef();
+    const getCassetteAPI = async(url, header={}) => {
+        try{
+            const getCassetteData = await axios.get(url, header);
+            //sort voicemail data
+            getCassetteData.data.voicemailList.sort((a, b) => {
+                return b.code - a.code;
+            });
+            //set voicemail state
+            setData(getCassetteData.data.voicemailList);
+            //set user state
+            setUser({
+                code: getCassetteData.data.userCode,
+                isUser: getCassetteData.data.isUser,
+                name: getCassetteData.data.userName
+            });
+        } catch (e) {
+            alert(e.response.data.message);
+            navigate('/login');
+        }
+    };
 
     useEffect(() => {
-        //get cassette data name server
-        setData([
-            {
-                id: 'temp1',
-                nickname: 'temp1',
-                iconType: 'temp1',
-                voiceFileKey: 'temp1',
-                date: new Date('2023-03-07T03:24:00'),
-            },
-            {
-                id: 'temp2',
-                nickname: 'temp2',
-                iconType: 'temp2',
-                voiceFileKey: 'temp2',
-                date: new Date('2023-03-07T03:25:00'),
-            },
-            {
-                id: 'temp3',
-                nickname: 'temp3',
-                iconType: 'temp3',
-                voiceFileKey: 'temp3',
-                date: new Date('2023-03-07T03:26:00'),
-            },
-            {
-                id: 'temp4',
-                nickname: 'temp4',
-                iconType: 'temp4',
-                voiceFileKey: 'temp4',
-                date: new Date('2023-03-07T03:21:00'),
-            },
-            {
-                id: 'temp5',
-                nickname: 'temp5',
-                iconType: 'temp5',
-                voiceFileKey: 'temp5',
-                date: new Date('2023-03-06T03:24:00'),
-            },
-            {
-                id: 'temp6',
-                nickname: 'temp6',
-                iconType: 'temp6',
-                voiceFileKey: 'temp6',
-                date: new Date('2022-03-07T03:24:00'),
-            },
-            {
-                id: 'temp7',
-                nickname: 'temp7',
-                iconType: 'temp7',
-                voiceFileKey: 'temp7',
-                date: new Date('2023-03-07T03:24:02'),
-            },
-            {
-                id: 'temp8',
-                nickname: 'temp8',
-                iconType: 'temp8',
-                voiceFileKey: 'temp8',
-                date: new Date('2013-03-17T03:24:00'),
-            },
-        ]);
+        //get user info
+        var fragmentString = window.location.href.split('?')[1];
+
+        // Parse query string to see if page request is coming from OAuth 2.0 server.
+        var params = {};
+        var regex = /([^&=]+)=([^&]*)/g, m;
+        while (m = regex.exec(fragmentString)) {
+            params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
+        }
+        const token = params.access_token;
+        let decoded = {};
+        if(token){
+            //decode jwt token
+            decoded = jwt_decode(token);
+
+            //create random url
+            let url = 'http://localhost:3000/main?userID=';
+            //encrypt user ID
+            const encryptedURL = Crypto.AES.encrypt(decoded.code.toString(), Crypto.enc.Utf8.parse(process.env.REACT_APP_SECRETKEY), {
+                iv: Crypto.enc.Utf8.parse(process.env.REACT_APP_IV),
+                padding: Crypto.pad.Pkcs7,
+                mode: Crypto.mode.CBC
+            });
+
+            window.localStorage.setItem('inviteURL', url + encodeURIComponent(encryptedURL.toString())); //query parameter로 변환
+
+            const header = {
+                "Authorization": "Bearer " + token,
+            };
+
+            //get cassette data name server : user
+            getCassetteAPI('http://localhost:8080/api/v1/voicemail/my', {headers: header});
+        }
+        else {
+            //get cassette data name server : guest
+            getCassetteAPI('http://localhost:8080/api/v1/voicemail/user?userID=' + encodeURIComponent(params.userID));
+        }
+
+
     }, []);
-
+    //divide voicemails into array of 3 voicemail ( = shelf)
     useEffect(() => {
-        //temp code
         setCassettes(() => {
             const numShelfs = data.length % 3 === 0 ? data.length / 3 : data.length / 3 + 1;
             const dividedCassetteArr = [];
@@ -85,62 +93,101 @@ export default function Main() {
                 let sliced = data.slice(i * 3, i * 3 + 3)
                 dividedCassetteArr.push(sliced);
             }
-            return dividedCassetteArr;
+            return dividedCassetteArr.slice(4*offset, (offset+1)*4);
         });
-    }, [data]);
-
+        console.log(cassettes);
+    }, [data, offset]);
+    //display recorder popup (record button click)
     const displayRecordPopup = () => {
-        setContent(<Recorder name={username} data={data} setData={setData}/>);
-        popup.current.style.display = 'block';
+        setContent(<NameSelector setContent={setContent} />)
+        popup.current.style.display = 'flex';
     }
-
-    const displayPlayerPopup = () => {
-        setContent(<div>djklslehfjkf</div>);
-        popup.current.style.display = 'block';
+    //display player popup (cassette icon click)
+    const displayPlayerPopup = (voiceKey) => {
+        setContent(<Player voiceKey={voiceKey}/>);
+        popup.current.style.display = 'flex';
     }
-
+    //make popup disappear
     const disappearPopup = () => {
         setContent(null);
         popup.current.style.display = 'none';
     }
+    //show invite popup
+    const invite = () => {
+        setContent(<Invite />);
+        popup.current.style.display = 'flex';
+    }
+    //move to left shelf (offset - 1)
+    const swipeLeft = () => {
+        if(offset > 0){
+            console.log(offset);
+            setOffset(offset-1);
+        }
+    }
+    //move to right shelf (offset + 1)
+    const swipeRight = () => {
+        if(offset < parseInt(cassettes.length / 4)){
+            console.log(cassettes.length / 4);
+            setOffset(offset + 1);
+        }
+    }
 
     return (
         <div>
-            <div className={"main-container"}>
-                <div className={"main-title"}>
-                    <p className={"user-info"}>{username}님에게 {data.length}개의 음성 편지가 도착했습니다!</p>
-                    <p className={"user-guide"}>아이콘을 눌러 들어보세요~~</p>
+            <div className={styles.mContainer}>
+                <div className={styles.mainTitle}>
+                    {user.isUser
+                        ?
+                        <div>
+                            <p className={styles.userInfo}>{user.name}님에게 {data.length}개의 음성 편지가 도착했습니다!</p>
+                            <p className={styles.userGuide}>아이콘을 눌러 들어보세요~~</p>
+                        </div>
+                        :
+                        <div>
+                            <p className={styles.userInfo}>{user.name}님에게 {data.length}개의 음성 편지가 도착했습니다!</p>
+                            <p className={styles.userGuide}>{user.name}님에게 메시지를 남겨보세요~!</p>
+                        </div>
+                    }
+
                 </div>
-                <div className={"main-shelves"}>
-                    {cassettes.slice(offset, offset + 4).map((shelf, indexShelf) => {
-                        return (
-                            <div key={indexShelf} className={"main-shelf"}>
-                                {
-                                    shelf.length !== 0
-                                    ?
-                                    shelf.map(({id, nickname, iconType, voiceFileKey, date}) => {
-                                        return (
-                                            <Cassette key={id} nickname={nickname} iconType={iconType} voiceFileKey={voiceFileKey} date={date}/>
-                                        );
-                                    })
-                                    :
-                                    <div className={"main-shelf"}>
-                                        <Cassette nickname={null} iconType={null} voiceFileKey={null} date={null} />
-                                        <Cassette nickname={null} iconType={null} voiceFileKey={null} date={null} />
-                                        <Cassette nickname={null} iconType={null} voiceFileKey={null} date={null} />
-                                    </div>
-                                }
-                            </div>
-                        );
-                    })}
+                <div className={styles.customButton}>
+                    {user.isUser ? <div onClick={invite} className={styles.customButtonText}>invite friends</div> : null}
                 </div>
-                <button onClick={displayPlayerPopup}>play</button>
-                <div className="temp">
-                    <audio src={tempAudio} controls></audio>
+                <div className={styles.shelves}>
+                    <div className={styles.swipe} onClick={swipeLeft}>
+                        <img src={"icons/right_arrow.png"} className={styles.swipeArrow}/>
+                    </div>
+                    <div className={styles.mShelves}>
+                        {cassettes/*.slice(offset, offset + 4)*/.map((shelf, indexShelf) => {
+                            return (
+                                <div key={indexShelf} className={styles.mShelf}>
+                                    {
+                                        shelf.length !== 0
+                                            ?
+                                            shelf.map(({code, writer, iconType, fileUrl, date}) => {
+                                                return (
+                                                    <Cassette key={code} nickname={writer} iconType={iconType} date={date} clickFunction={user.isUser ? ()=>{displayPlayerPopup(fileUrl)} : null}/>
+                                                );
+                                            })
+                                            :
+                                            <div className={styles.mShelf}>
+                                                <div className={styles.emptyCassette} />
+                                                <div className={styles.emptyCassette} />
+                                                <div className={styles.emptyCassette} />
+                                            </div>
+                                    }
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div className={styles.swipe} onClick={swipeRight}>
+                        <img src={"icons/left_arrow.png"} className={styles.swipeArrow} />
+                    </div>
                 </div>
-                <button onClick={displayRecordPopup}>record</button>
-                <Popup id={"mainPopup"} className={"pop-up"} inner={content} innerRef={popup} disappearPopup={disappearPopup}/>
-                {/*<Recorder name={username} data={data} setData={setData}/>*/}
+                <div className={styles.customButton}>
+                    {user.isUser ? null : <div onClick={displayRecordPopup} className={styles.customButtonText}>record</div>}
+                </div>
+                <Popup id={"mainPopup"} inner={content} innerRef={popup} disappearPopup={disappearPopup}/>
             </div>
         </div>
     );

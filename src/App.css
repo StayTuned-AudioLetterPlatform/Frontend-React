@@ -23,11 +23,24 @@
 .pop-up{
   display: none;
   background-color: antiquewhite;
-  width: 30vw;
   position: fixed;
-  top: 40%;
-  left: 35%;
-  padding: 10px 0 30px 0;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 10px 30px 10px;
+  width: 100vw;
+  max-width: 488px;
+  height: 92vh;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+}
+
+.pop-up-button {
+  width: fit-content;
+  margin: 0 auto;
 }
 
 .App-link {
