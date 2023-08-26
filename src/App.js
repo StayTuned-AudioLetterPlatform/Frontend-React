@@ -4,7 +4,7 @@ import Header from './components/header';
 import Login from './pages/login';
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import {Main} from "./pages/main";
-import Google from "./pages/google";
+
 import {
     RecoilRoot,
     atom,
