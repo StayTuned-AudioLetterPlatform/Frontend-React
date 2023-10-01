@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import Recorder from "./recorder";
-import styles from '../assets/css/iconSelector.module.css';
+import styles from '../assets/css/main/iconSelector.module.css';
 
 export default function IconSelector (props) {
 

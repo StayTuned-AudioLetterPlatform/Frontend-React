@@ -1,8 +1,8 @@
 import React, {useEffect, useRef, useState} from 'react';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { expireTime as timeAtom, user as userAtom, records as recordsAtom } from "../states/atoms";
-import styles from "../assets/css/main.module.css";
-import '../assets/css/main.module.css';
+import styles from "../assets/css/main/main.module.css";
+import '../assets/css/main/main.module.css';
 import Cassette from "../components/cassette";
 import Popup from "../components/popup";
 import jwt_decode from "jwt-decode";
@@ -38,7 +38,7 @@ export function Main() {
                 name: getCassetteData.data.userName
             });
         } catch (e) {
-            alert(e.response.data.message);
+            alert(e + url);
             navigate('/login');
         }
     };
@@ -68,18 +68,20 @@ export function Main() {
                 mode: Crypto.mode.CBC
             });
 
-            window.localStorage.setItem('inviteURL', url + encodeURIComponent(encryptedURL.toString())); //query parameter로 변환
+            window.localStorage.setItem('inviteURL', url + btoa(encryptedURL.toString()).replace('+', '-').replace('/', '_')); //query parameter로 변환
 
             const header = {
                 "Authorization": "Bearer " + token,
             };
 
             //get cassette data name server : user
-            getCassetteAPI('http://localhost:8080/api/v1/voicemail/my', {headers: header});
+            getCassetteAPI('http://ec2-52-79-213-56.ap-northeast-2.compute.amazonaws.com:8080/api/v1/voicemail/my', {headers: header});
         }
         else {
             //get cassette data name server : guest
-            getCassetteAPI('http://localhost:8080/api/v1/voicemail/user?userID=' + encodeURIComponent(params.userID));
+            const queryParam = {userID: params.userID};
+            const queryString = new URLSearchParams(queryParam).toString();
+            getCassetteAPI('http://ec2-52-79-213-56.ap-northeast-2.compute.amazonaws.com:8080/api/v1/voicemail/user?' + queryString);
         }
 
 

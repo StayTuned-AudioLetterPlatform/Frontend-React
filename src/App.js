@@ -4,7 +4,7 @@ import Header from './components/header';
 import Login from './pages/login';
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import {Main} from "./pages/main";
-import Google from "./pages/google";
+
 import {
     RecoilRoot,
     atom,
@@ -12,6 +12,7 @@ import {
     useRecoilState,
     useRecoilValue,
 } from "recoil";
+import MyPage from "./pages/mypage";
 
 
 function App() {
@@ -22,11 +23,11 @@ function App() {
                 <div className="App">
                     <Header />
                     <Routes>
+                        <Route path={"/"} exact element={<Login />} />
                         <Route path={"/login"} exact element={<Login />} />
                         <Route path={"/main"} element={<Main />} />
-                        <Route path={"/google-callback"} element={<Google />}/>
+                        <Route path={"/mypage"} element={<MyPage />} />
                     </Routes>
-
                 </div>
             </BrowserRouter>
         </RecoilRoot>
