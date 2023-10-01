@@ -12,6 +12,7 @@ import {
     useRecoilState,
     useRecoilValue,
 } from "recoil";
+import MyPage from "./pages/mypage";
 
 
 function App() {
@@ -25,8 +26,8 @@ function App() {
                         <Route path={"/"} exact element={<Login />} />
                         <Route path={"/login"} exact element={<Login />} />
                         <Route path={"/main"} element={<Main />} />
+                        <Route path={"/mypage"} element={<MyPage />} />
                     </Routes>
-
                 </div>
             </BrowserRouter>
         </RecoilRoot>

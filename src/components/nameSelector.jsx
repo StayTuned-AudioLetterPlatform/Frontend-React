@@ -1,6 +1,6 @@
 import React, {useState, useRef} from 'react';
 import IconSelector from "./iconSelector";
-import styles from '../assets/css/nameSelector.module.css'
+import styles from '../assets/css/main/nameSelector.module.css'
 
 export default function NameSelector (props) {
 

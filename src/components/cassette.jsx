@@ -1,5 +1,5 @@
 import React from 'react';
-import '../assets/css/cassette.css'
+import '../assets/css/main/cassette.css'
 
 export default function Cassette({nickname, voiceFileKey, iconType, clickFunction}) {
 

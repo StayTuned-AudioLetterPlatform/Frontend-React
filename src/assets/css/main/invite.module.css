@@ -1,0 +1,25 @@
+@font-face {
+    font-family: 'HS-Regular';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2201-2@1.0/HS-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.container {
+    width: fit-content;
+    height: fit-content;
+}
+.inviteGuide {
+    font-family: HS-Regular;
+    font-size: 2rem;
+}
+.box {
+    border: black 1px;
+    background-color: #FFFFFF;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px;
+}
+.inviteInfo {
+    font-family: HS-Regular;
+}

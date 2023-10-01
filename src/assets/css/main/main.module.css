@@ -1,0 +1,106 @@
+@font-face {
+    font-family: 'HS-Regular';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2201-2@1.0/HS-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.mContainer {
+    width: fit-content;
+    margin: auto;
+}
+
+.shelves {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.swipe {
+    display: grid;
+    align-content: center;
+    padding: 0 10px;
+}
+
+.swipeArrow {
+    width: 50px;
+    height: 50px;
+}
+
+.swipeArrow:hover {
+    cursor: pointer;
+}
+
+.mShelves {
+    display: flex;
+    align-content: center;
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+
+.mShelf {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+}
+.not-full-shelf {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+}
+
+.cassette {
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: auto;
+}
+
+.cassette:hover {
+    cursor: pointer;
+}
+
+.empty-cassette {
+    width:90px;
+}
+
+.temp {
+    display: none;
+}
+
+.main-title {
+
+}
+
+.userInfo {
+    font-size: 1.5rem;
+    font-family: HS-Regular;
+}
+
+.userGuide {
+    font-family: HS-Regular;
+}
+
+.customButton {
+    width: fit-content;
+    padding: 5px;
+    background-color: beige;
+    border-radius: 5px;
+    border-color: blanchedalmond;
+    margin: auto;
+}
+
+.customButton:hover {
+    cursor: pointer;
+}
+
+.customButtonText {
+    font-family: HS-Regular;
+}
+
+.customButtonText:hover {
+    cursor: pointer;
+}

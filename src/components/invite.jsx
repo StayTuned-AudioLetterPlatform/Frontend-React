@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../assets/css/invite.module.css';
+import styles from '../assets/css/main/invite.module.css';
 
 export default function Invite () {
     return(

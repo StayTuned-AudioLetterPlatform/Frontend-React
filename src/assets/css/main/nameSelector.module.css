@@ -1,0 +1,15 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-content: center;
+    height: inherit;
+}
+
+.nameInput {
+    margin: auto;
+}
+
+.nextButton {
+    margin: auto;
+}

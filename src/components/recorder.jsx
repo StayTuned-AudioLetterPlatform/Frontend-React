@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import axios from "axios";
 import {user as userAtom, records as recordsAtom} from "../states/atoms";
 import {useRecoilValue, useSetRecoilState} from "recoil";
-import styles from '../assets/css/recorder.module.css';
+import styles from '../assets/css/main/recorder.module.css';
 
 const Recorder = (props) => {
     const mimeType = 'audio/wav'; //audio file format
@@ -62,7 +62,7 @@ const Recorder = (props) => {
             const audioUrl = URL.createObjectURL(audioBlob);
             setAudioChunks([]);
             //send
-            const url = "http://localhost:8080/api/v1/voicemail/file/upload";
+            const url = `http://ec2-52-79-213-56.ap-northeast-2.compute.amazonaws.com:8080/api/v1/voicemail/file/upload/${userAtom.userCd}`;
             const formData = new FormData();
             formData.append("data", audioBlob);
 
@@ -86,7 +86,7 @@ const Recorder = (props) => {
                             'content-type': 'application/json'
                         }
                     };
-                    axios.post("http://localhost:8080/api/v1/voicemail/save", saveData, saveConfig)
+                    axios.post("http://ec2-52-79-213-56.ap-northeast-2.compute.amazonaws.com:8080/api/v1/voicemail/save", saveData, saveConfig)
                         .then((res) => {
                             setRecords((prev)=> {
                                 return([
