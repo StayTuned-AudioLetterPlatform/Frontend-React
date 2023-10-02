@@ -60,7 +60,7 @@ export function Main() {
             decoded = jwt_decode(token);
 
             //create random url
-            let url = 'http://localhost:3000/main?userID=';
+            let url = 'https://stay-tuned-frontend.vercel.app/main?userID=';
             //encrypt user ID
             const encryptedURL = Crypto.AES.encrypt(decoded.code.toString(), Crypto.enc.Utf8.parse(process.env.REACT_APP_SECRETKEY), {
                 iv: Crypto.enc.Utf8.parse(process.env.REACT_APP_IV),
