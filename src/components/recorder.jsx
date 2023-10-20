@@ -62,7 +62,7 @@ const Recorder = (props) => {
             const audioUrl = URL.createObjectURL(audioBlob);
             setAudioChunks([]);
             //send
-            const url = `http://ec2-52-79-213-56.ap-northeast-2.compute.amazonaws.com:8080/api/v1/voicemail/file/upload/${userAtom.userCd}`;
+            const url = `https://stay-tuned.shop/api/v1/voicemail/file/upload/${userAtom.userCd}`;
             const formData = new FormData();
             formData.append("data", audioBlob);
 
@@ -86,7 +86,7 @@ const Recorder = (props) => {
                             'content-type': 'application/json'
                         }
                     };
-                    axios.post("http://ec2-52-79-213-56.ap-northeast-2.compute.amazonaws.com:8080/api/v1/voicemail/save", saveData, saveConfig)
+                    axios.post("https://stay-tuned.shop/api/v1/voicemail/save", saveData, saveConfig)
                         .then((res) => {
                             setRecords((prev)=> {
                                 return([
