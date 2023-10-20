@@ -75,13 +75,13 @@ export function Main() {
             };
 
             //get cassette data name server : user
-            getCassetteAPI('http://ec2-52-79-213-56.ap-northeast-2.compute.amazonaws.com:8080/api/v1/voicemail/my', {headers: header});
+            getCassetteAPI('https://stay-tuned.shop/api/v1/voicemail/my', {headers: header});
         }
         else {
             //get cassette data name server : guest
             const queryParam = {userID: params.userID};
             const queryString = new URLSearchParams(queryParam).toString();
-            getCassetteAPI('http://ec2-52-79-213-56.ap-northeast-2.compute.amazonaws.com:8080/api/v1/voicemail/user?' + queryString);
+            getCassetteAPI('https://stay-tuned.shop/api/v1/voicemail/user?' + queryString);
         }
 
 
