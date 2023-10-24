@@ -62,7 +62,7 @@ export function Main() {
             //create random url
             let url = 'https://stay-tuned-frontend.vercel.app/main?userID=';
             //encrypt user ID
-            const encryptedURL = Crypto.AES.encrypt(decoded.code.toString(), Crypto.enc.Utf8.parse(process.env.REACT_APP_SECRETKEY), {
+            const encryptedURL = Crypto.AES.encrypt(/*decoded.code.toString()*/'11', Crypto.enc.Utf8.parse(process.env.REACT_APP_SECRETKEY), {
                 iv: Crypto.enc.Utf8.parse(process.env.REACT_APP_IV),
                 padding: Crypto.pad.Pkcs7,
                 mode: Crypto.mode.CBC
