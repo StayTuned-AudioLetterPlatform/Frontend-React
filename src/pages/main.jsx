@@ -39,7 +39,7 @@ export function Main() {
             });
         } catch (e) {
             alert(e + url);
-            navigate('/login');
+            // navigate('/login');
         }
     };
 
@@ -62,13 +62,13 @@ export function Main() {
             //create random url
             let url = 'https://stay-tuned-frontend.vercel.app/main?userID=';
             //encrypt user ID
-            const encryptedURL = Crypto.AES.encrypt(decoded.code.toString(), Crypto.enc.Utf8.parse(process.env.REACT_APP_SECRETKEY), {
+            const encryptedURL = Crypto.AES.encrypt(/*decoded.code.toString()*/'11', Crypto.enc.Utf8.parse(process.env.REACT_APP_SECRETKEY), {
                 iv: Crypto.enc.Utf8.parse(process.env.REACT_APP_IV),
                 padding: Crypto.pad.Pkcs7,
                 mode: Crypto.mode.CBC
             });
 
-            window.localStorage.setItem('inviteURL', url + btoa(encryptedURL.toString()).replace('+', '-').replace('/', '_')); //query parameter로 변환
+            window.localStorage.setItem('inviteURL', url + encryptedURL.toString().replaceAll('+', '-').replaceAll('/', '_')); //query parameter로 변환
 
             const header = {
                 "Authorization": "Bearer " + token,
